@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.craft.java.soms.dto.OrderRequestDTO;
 import com.craft.java.soms.dto.OrderResponseDTO;
 import com.craft.java.soms.model.Order;
 import com.craft.java.soms.service.OrderService;
@@ -24,8 +25,9 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/create")
-    public ResponseEntity<Order> createOrder(@RequestBody OrderResponseDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(dto));
+    public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
+        OrderResponseDTO createdOrder = orderService.createOrder(orderRequestDTO);
+        return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 
     @GetMapping("/get/{orderId}")

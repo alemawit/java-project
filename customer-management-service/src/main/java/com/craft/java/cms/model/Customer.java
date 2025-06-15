@@ -10,30 +10,28 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//Customer.java
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer {
 
- @Id
- @GeneratedValue(strategy = GenerationType.IDENTITY)
- private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
- private String firstName;
- private String lastName;
- private String email;
- private String phone;
+    private String customerCode;  // <-- ADD THIS LINE
 
- @Embedded
- private Address address;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phone;
 
- private String notes;
+    @Embedded
+    private Address address;
 
- @Embedded
- private CustomFields customFields;
+    private String notes;
+
+    @Embedded
+    private CustomFields customFields;
 }
-
-
-

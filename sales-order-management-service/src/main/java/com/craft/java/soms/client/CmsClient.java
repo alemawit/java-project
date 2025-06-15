@@ -5,17 +5,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class CmsClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${cms.service.url}")
-    private String cmsServiceUrl; // e.g., http://localhost:9090/customers/get/{customerId}
+    @Value("${cms.service.url}") // Should NOT include {customerId}, e.g., http://localhost:9090/customers/get
+    private String cmsServiceUrl;
 
     public void verifyCustomer(String customerId) {
-        String url = cmsServiceUrl + "/" + customerId;
+        String url = UriComponentsBuilder
+                        .fromHttpUrl(cmsServiceUrl)
+                        .pathSegment(customerId)
+                        .toUriString();
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
@@ -31,4 +35,3 @@ public class CmsClient {
         }
     }
 }
-
