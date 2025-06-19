@@ -69,4 +69,73 @@ public class OrderService {
 
         return response;
     }
+    public OrderResponseDTO updateOrder(Long orderId, OrderResponseDTO dto) {
+        Order existingOrder = orderRepository.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
+
+        // Update fields (you can adjust as needed)
+        existingOrder.setDiscount(dto.getDiscount());
+        existingOrder.setNotes(dto.getNotes());
+        existingOrder.setStatus(dto.getStatus());
+
+        ShippingAddress address = new ShippingAddress();
+        address.setStreet(dto.getShippingAddress().getStreet());
+        address.setCity(dto.getShippingAddress().getCity());
+        address.setState(dto.getShippingAddress().getState());
+        address.setZipcode(dto.getShippingAddress().getZipcode());
+        existingOrder.setShippingAddress(address);
+
+        // Optionally update products (skipped here for simplicity)
+        // existingOrder.setProducts(...);
+
+        // Recalculate total amount if needed
+        // (You might want to use `dto.getProducts()` to recalculate it)
+        existingOrder.setTotalAmount(dto.getTotalAmount());
+
+        Order updatedOrder = orderRepository.save(existingOrder);
+
+        OrderResponseDTO response = new OrderResponseDTO();
+        response.setOrderId("ORDER" + updatedOrder.getId());
+        response.setCustomerId(updatedOrder.getCustomerId());
+        response.setProducts(dto.getProducts()); // may need conversion
+        response.setTotalAmount(updatedOrder.getTotalAmount());
+        response.setStatus(updatedOrder.getStatus());
+        response.setDiscount(updatedOrder.getDiscount());
+        response.setShippingAddress(dto.getShippingAddress());
+        response.setNotes(updatedOrder.getNotes());
+
+        return response;
+    }
+    public OrderResponseDTO getOrder(Long orderId) {
+    Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+
+    OrderResponseDTO dto = new OrderResponseDTO();
+    dto.setOrderId("ORDER" + order.getId());
+    dto.setCustomerId(order.getCustomerId());
+    dto.setDiscount(order.getDiscount());
+    dto.setNotes(order.getNotes());
+    dto.setStatus(order.getStatus());
+    dto.setTotalAmount(order.getTotalAmount());
+
+    ShippingAddress address = order.getShippingAddress();
+    if (address != null) {
+        dto.setShippingAddress(new com.craft.java.soms.dto.ShippingAddressDTO(
+            address.getStreet(), address.getCity(), address.getState(), address.getZipcode()
+        ));
+    }
+
+    dto.setProducts(order.getProducts().stream().map(p -> {
+        var productDto = new com.craft.java.soms.dto.ProductDTO();
+        productDto.setProductId(p.getProductId());
+        productDto.setQuantity(p.getQuantity());
+        productDto.setPrice(p.getPrice());
+        return productDto;
+    }).collect(Collectors.toList()));
+
+    return dto;
+}
+
+
+
 }
