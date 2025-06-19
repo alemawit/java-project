@@ -2,7 +2,11 @@ package com.craft.java.cms.controller;
 
 import com.craft.java.cms.dto.CustomerResponseDTO;
 import com.craft.java.cms.model.Customer;
+import com.craft.java.cms.repository.CustomerRepository;
 import com.craft.java.cms.service.CustomerService;
+
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +33,18 @@ public class CustomerController {
         return ResponseEntity.ok(updatedDTO);
     }
 
-    // Get customer by id
-    @GetMapping("/get/{id}")
-    public ResponseEntity<CustomerResponseDTO> get(@PathVariable Long id) {
-        CustomerResponseDTO customerDTO = customerService.getCustomer(id);
-        return ResponseEntity.ok(customerDTO);
+    @GetMapping("/get/{customerId}")
+    public ResponseEntity<CustomerResponseDTO> getCustomerByCustomerId(@PathVariable String customerId) {
+        Optional<Customer> customerOptional = customerService.findCustomerByCustomerId(customerId);
+
+        if (customerOptional.isPresent()) {
+            CustomerResponseDTO dto = customerService.mapToCustomerResponseDTO(customerOptional.get());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
+
+
 }

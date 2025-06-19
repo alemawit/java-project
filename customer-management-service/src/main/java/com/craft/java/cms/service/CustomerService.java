@@ -1,5 +1,7 @@
 package com.craft.java.cms.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.craft.java.cms.dto.CustomerResponseDTO;
@@ -18,11 +20,13 @@ public class CustomerService {
 
     public CustomerResponseDTO createCustomer(Customer customer) {
         String generatedCode = "CUST" + System.currentTimeMillis();
-        customer.setCustomerCode(generatedCode);
+        customer.setCustomerId(generatedCode);
+
+        customer.setCustomerId(generatedCode); 
+
         Customer savedCustomer = customerRepository.save(customer);
         return mapToCustomerResponseDTO(savedCustomer);
     }
-
 
     public CustomerResponseDTO updateCustomer(Long id, Customer updatedCustomer) {
         Customer existing = customerRepository.findById(id)
@@ -68,11 +72,11 @@ public class CustomerService {
         return mapToCustomerResponseDTO(customer);
     }
 
-    private CustomerResponseDTO mapToCustomerResponseDTO(Customer customer) {
+    public CustomerResponseDTO mapToCustomerResponseDTO(Customer customer) {
         CustomerResponseDTO dto = new CustomerResponseDTO();
 
-        // Set customerId properly
-        dto.setCustomerId("CUST" + customer.getId());
+        dto.setCustomerId(customer.getCustomerId());
+
         dto.setFirstName(customer.getFirstName());
         dto.setLastName(customer.getLastName());
         dto.setEmail(customer.getEmail());
@@ -99,4 +103,12 @@ public class CustomerService {
 
         return dto;
     }
+
+    public boolean customerExistsByCustomerId(String customerId) {
+        return customerRepository.findByCustomerId(customerId).isPresent();
+    }
+    public Optional<Customer> findCustomerByCustomerId(String customerId) {
+        return customerRepository.findByCustomerId(customerId);
+    }
+
 }
