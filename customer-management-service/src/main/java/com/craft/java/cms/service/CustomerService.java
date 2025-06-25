@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.craft.java.cms.dto.CustomerResponseDTO;
 import com.craft.java.cms.dto.CustomerResponseDTO.AddressDTO;
 import com.craft.java.cms.dto.CustomerResponseDTO.CustomFieldsDTO;
+import com.craft.java.cms.kafka.KafkaProducerService;
 import com.craft.java.cms.model.Customer;
 import com.craft.java.cms.repository.CustomerRepository;
 
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final KafkaProducerService kafkaProducerService;
 
     public CustomerResponseDTO createCustomer(Customer customer) {
         String generatedCode = "CUST" + System.currentTimeMillis();
@@ -25,6 +27,8 @@ public class CustomerService {
         customer.setCustomerId(generatedCode); 
 
         Customer savedCustomer = customerRepository.save(customer);
+     // Send event to Kafka
+        kafkaProducerService.sendMessage("Created customer with ID: " + savedCustomer.getCustomerId());
         return mapToCustomerResponseDTO(savedCustomer);
     }
 
